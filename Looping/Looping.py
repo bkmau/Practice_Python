@@ -2,24 +2,27 @@ import unittest
 
 
 class TreePrinter:
-    @staticmethod
-    def print_tree(height):
-        root = ""
-        leafs = ""
-        leaf_count = 1
-        if height != 0:
-            for space in range(height - 1):
-                root += " "
-            root += "*"
-        while height > 0:
-            for space in range(height - 1):
-                leafs += " "
-            for leaf in range(leaf_count):
-                leafs += "*"
-            leafs += "\n"
-            height -= 1
-            leaf_count += 2
-        return leafs + root
+    def __init__(self, graphic):
+        self._graphic = graphic
+
+    def print_tree(self, height):
+        if height == 0:
+            return ""
+        else:
+            leafs = ""
+            leaf = 1
+            root = self._draw(" ", (height - 1)) + self._graphic
+            while height > 0:
+                leafs += self._draw(" ", (height - 1)) + self._draw(self._graphic, leaf) + "\n"
+                height -= 1
+                leaf += 2
+            return leafs + root
+
+    def _draw(self, graphic, times):
+        result = ""
+        for i in range(times):
+            result += graphic
+        return result
 
 
 class TreePrinterTest(unittest.TestCase):
