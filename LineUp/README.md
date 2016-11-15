@@ -13,5 +13,5 @@
 從第 2 個人開始每隔 4 個人取一人，共取 5 位。
 則，選取到的幸運兒就是 [2 6 10 5 1]
 
-REFERENCE
+REFERENCE</br>
 <a href = "http://ithelp.ithome.com.tw/articles/10157688">ithelp [Day02] 在PTT看到的排隊問題</a>
