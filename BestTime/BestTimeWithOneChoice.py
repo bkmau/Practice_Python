@@ -16,5 +16,5 @@ if profit == 0:
     print("Can't get any profit in this investment")
 else:
     print("To earn the best profit, {}, of stock, as buy at day {} and sell at day {}".format(
-        profit, day_to_buy, day_to_sell
+        profit, day_to_buy, (day_to_sell + 1)
     ))
