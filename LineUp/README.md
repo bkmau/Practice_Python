@@ -13,5 +13,6 @@
 從第 2 個人開始每隔 4 個人取一人，共取 5 位。
 則，選取到的幸運兒就是 [2 6 10 5 1]
 
-REFERENCE</br>
-<a href = "http://ithelp.ithome.com.tw/articles/10157688">ithelp, pajace2001, 30天挑戰演算法 [Day02] 在PTT看到的排隊問題</a>
+REFERENCE<br>
+ithelp, pajace2001, 30天挑戰演算法 [Day02] 在PTT看到的排隊問題<br>
+http://ithelp.ithome.com.tw/articles/10157688
