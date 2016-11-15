@@ -12,3 +12,6 @@
 有十個人在排隊 1 2 3 4 5 6 7 8 9 10
 從第 2 個人開始每隔 4 個人取一人，共取 5 位。
 則，選取到的幸運兒就是 [2 6 10 5 1]
+
+REFERENCE
+<a href = "http://ithelp.ithome.com.tw/articles/10157688">ithelp [Day02] 在PTT看到的排隊問題</a>
