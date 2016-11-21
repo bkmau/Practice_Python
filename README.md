@@ -3,6 +3,9 @@
 2. LineUp - 排隊問題[學2]
 3. PrimeFactor - TDD Kata, 求質數[學3]
 4. SecretMessage - chr() and ord()[學1]
+5. MultiplicationTable - multidimensional list[學1]
+6. BubbleSort[學1]
+7. MergeSort
 
 # 學習資源
 1. YouTube - Learn to Program by Derek Banas<br>https://www.youtube.com/playlist?list=PLGLfVvz_LVvTn3cK5e6LjhgGiSeVlIRwt
