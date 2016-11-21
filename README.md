@@ -1,10 +1,10 @@
 # Practice_Python
-1. PrintTree - Looping練習[學1]
-2. LineUp - 排隊問題[學2]
-3. PrimeFactor - TDD Kata, 求質數[學3]
-4. SecretMessage - chr() and ord()[學1]
-5. MultiplicationTable - multidimensional list[學1]
-6. BubbleSort[學1]
+1. PrintTree - Looping練習
+2. LineUp - 排隊問題
+3. PrimeFactor - TDD Kata, 求質數
+4. SecretMessage - chr() and ord()
+5. MultiplicationTable - multidimensional list
+6. BubbleSort
 7. MergeSort
 
 # 學習資源
