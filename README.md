@@ -4,8 +4,7 @@
 3. PrimeFactor - TDD Kata, 求質數
 4. SecretMessage - chr() and ord()
 5. MultiplicationTable - multidimensional list
-6. BubbleSort
-7. MergeSort
+6. Sorting Algorithm - BubbleSort, MergeSort
 
 # 學習資源
 1. YouTube - Learn to Program by Derek Banas<br>https://www.youtube.com/playlist?list=PLGLfVvz_LVvTn3cK5e6LjhgGiSeVlIRwt
