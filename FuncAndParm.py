@@ -1,6 +1,13 @@
 """
+SEE
+PEP 3102 -- Keyword-Only Arguments
+https://www.python.org/dev/peps/pep-3102/
+
 PEP 3107 - Function Annotations
 https://www.python.org/dev/peps/pep-3107/
+
+More Control Flow Tools in Python 3.5.3 documentation
+https://docs.python.org/3.5/tutorial/controlflow.html#defining-functions
 """
 
 def func1(a, b):
@@ -17,6 +24,7 @@ def func3(*args):
 
 
 def func4(**kwargs):
+    # kwargs = keyword arguments
     for key, value in kwargs.items():
         print("key = {} value = {}".format(key, value))
 
