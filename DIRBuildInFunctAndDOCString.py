@@ -38,4 +38,6 @@ class People:
         return "I am working!!"
 
 print(dir(People))
+print()
+print(People.__dict__)
 print(People.__doc__)

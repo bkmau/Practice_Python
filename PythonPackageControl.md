@@ -17,6 +17,12 @@ c:\> pip install wheel # Install wheel
 c:\> pip install beautifulsoup4 # Install beautifulsoup4
 ```
 
+```bash
+c:\> for /f "tokens=1 delims===" %i in ('pip3 list -o --format=freeze') do pip3 install -U %i
+```
+
+
+
 pip3 search PACKAGE_NAME
 
 pip3 install PACKAGE_NAME
@@ -31,7 +37,6 @@ pip3 list -o --format=freeze / pip list --outdate --format=freeze
 
 pip3 list -o --format=freeze > requirement.txt
 http://stackoverflow.com/questions/2720014/upgrading-all-packages-with-pip
-
 
 
 ## 手動安裝
