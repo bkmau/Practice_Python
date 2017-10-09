@@ -7,10 +7,10 @@ class MyApp(QtWidgets.QWidget):
         super().__init__()
 
         self.icon_set = {
-            "leaf": "leaf.png",
-            "fire": "fire.png",
-            "wind": "wind.png",
-            "water": "water.png"
+            "leaf": "icon\\leaf.png",
+            "fire": "icon\\fire.png",
+            "wind": "icon\\wind.png",
+            "water": "icon\\water.png"
         }
         self.keys = ["leaf", "fire", "wind", "water"]
 
