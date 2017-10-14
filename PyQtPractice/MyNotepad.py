@@ -1,6 +1,7 @@
 import sys
 import os
 import random
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 
 
@@ -9,7 +10,7 @@ class MyNotepad(QtWidgets.QWidget):
         super().__init__()
 
         self.ed_1 = QtWidgets.QTextEdit()
-        text = """In this text I want to highlight this word and only this word.\n""" + \
+        text = """In this text I want to highlight this zzwordyy and only this word.\n""" + \
                """Any other word shouldn't be highlighted"""
         self.ed_1.setText(text)
 
@@ -31,81 +32,147 @@ class MyNotepad(QtWidgets.QWidget):
         self.ed_1.clear()
 
 
-class MySearBox(QtWidgets.QDialog):
+class MySearchBox(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.lbl_1 = QtWidgets.QLabel("Find:")
         self.ed_1 = QtWidgets.QLineEdit()
         self.ed_1.setText("word")
+
         self.find_btn = QtWidgets.QPushButton("Find")
         self.previous_btn = QtWidgets.QPushButton("Find Previous")
 
-        self.exit_btn = QtWidgets.QPushButton("Exit")
-
         self.v_box = QtWidgets.QVBoxLayout()
-        self.h_box = QtWidgets.QHBoxLayout()
+        self.v_box = QtWidgets.QVBoxLayout()
+        self.h_box_1 = QtWidgets.QHBoxLayout()
+        self.h_box_2 = QtWidgets.QHBoxLayout()
 
-        self.sel = 0
+        self.matchs = []
 
         self.set_up()
 
     def set_up(self):
+        self.h_box_1.addWidget(self.lbl_1)
+        self.h_box_1.addWidget(self.ed_1)
+
         self.find_btn.setObjectName("find_btn")
         self.find_btn.clicked.connect(self.btn_click)
 
         self.previous_btn.setObjectName("previous_btn")
         self.previous_btn.clicked.connect(self.btn_click)
 
-        self.exit_btn.clicked.connect(self.exit_btn_click)
+        self.h_box_2.addWidget(self.find_btn)
+        self.h_box_2.addWidget(self.previous_btn)
 
-        self.h_box.addWidget(self.find_btn)
-        self.h_box.addWidget(self.previous_btn)
-        self.h_box.addWidget(self.exit_btn)
-
-        self.v_box.addWidget(self.ed_1)
-        self.v_box.addLayout(self.h_box)
+        self.v_box.addLayout(self.h_box_1)
+        self.v_box.addLayout(self.h_box_2)
 
         self.setLayout(self.v_box)
 
     def btn_click(self):
-        try:
-            if self.sender().objectName() == "find_btn":
-                search_zone = self.parent().edit_area.ed_1
-                if (search_zone.toPlainText() != "") & (self.ed_1.text() != ""):
-                    cursor = search_zone.textCursor()
-
-                    font_fmt = QtGui.QTextCharFormat()
-                    font_fmt.setBackground(QtGui.QBrush(QtGui.QColor("yellow")))
-
-                    regex = QtCore.QRegExp(self.ed_1.text())
-
-                    pos = 0
-
-                    index = regex.indexIn(search_zone.toPlainText(), pos)
-                    while index != -1:
-                        cursor.setPosition(index)
-                        cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
-                        cursor.mergeCharFormat(font_fmt)
-                        pos = index + regex.matchedLength()
-                        index = regex.indexIn(search_zone.toPlainText(), pos)
-
-
-                        # search_zone.setTextCursor(cursor)
-                    # if index:
-                    #     cursor.setPosition(index, mode=QtGui.QTextCursor.MoveAnchor)
-                    #     cursor.movePosition(QtGui.QTextCursor.EndOfWord, mode=QtGui.QTextCursor.MoveAnchor)
-                    #     cursor.select(QtGui.QTextCursor.WordUnderCursor)
-                    #
-
-            elif self.sender().objectName() == "previous_btn":
-                print("Go Previous")
-        except Exception as e:
-            print(e)
+        if self.sender().objectName() == "find_btn":
+            self.highlight_word(True)
+        elif self.sender().objectName() == "previous_btn":
+            print("Go Previous")
 
     def exit_btn_click(self):
+        self.highlight_word(False)
         self.hide()
         self.close()
 
+    def highlight_word(self, highlight):
+        search_zone = self.parent().edit_area.ed_1
+        expression = self.ed_1.text()
+        brush = QtGui.QBrush(QtGui.QColor("yellow")) if highlight else QtGui.QBrush(QtCore.Qt.NoBrush)
+
+        if (search_zone.toPlainText() != "") & (expression != ""):
+            cursor = search_zone.textCursor()
+
+            font_fmt = QtGui.QTextCharFormat()
+            font_fmt.setBackground(brush)
+
+            regex = QtCore.QRegExp(expression)
+
+            pos = 0
+
+            index = regex.indexIn(search_zone.toPlainText(), pos)
+            while index != -1:
+                self.move_cursor(cursor, index)
+
+                cursor.mergeCharFormat(font_fmt)
+                pos = index + regex.matchedLength()
+                index = regex.indexIn(search_zone.toPlainText(), pos)
+
+                self.matchs.append((index, pos))
+
+    def move_cursor(self, cursor, position, selected=False):
+        cursor.setPosition(position)
+        cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
+        if selected:
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
+
+class MyReplaceBox(MySearchBox):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        self.lbl_2 = QtWidgets.QLabel("Replace with:")
+        self.ed_2 = QtWidgets.QLineEdit()
+        self.ed_2.setText("earth")
+
+        self.replace_btn = QtWidgets.QPushButton("Replace")
+        self.replace_all_btn = QtWidgets.QPushButton("Replace All")
+
+        self.matchs = []
+
+        self.set_up()
+
+    def set_up(self):
+        try:
+            self.h_box.addWidget(self.find_btn)
+            self.h_box.addWidget(self.previous_btn)
+            # self.h_box.addWidget(self.replace_btn)
+            # self.h_box.addWidget(self.replace_all_btn)
+
+            self.v_box.addWidget(self.ed_1)
+            self.v_box.addWidget(self.ed_2)
+            self.v_box.addLayout(self.h_box)
+
+            self.setLayout(self.v_box)
+        except Exception as e:
+            print(e)
+
+    def highlight_word(self, highlight):
+        # search_zone = self.parent().edit_area.ed_1
+        # expression = self.ed_1.text()
+        # brush = QtGui.QBrush(QtGui.QColor("yellow")) if highlight else QtGui.QBrush(QtCore.Qt.NoBrush)
+        #
+        # if (search_zone.toPlainText() != "") & (expression != ""):
+        #     cursor = search_zone.textCursor()
+        #
+        #     font_fmt = QtGui.QTextCharFormat()
+        #     font_fmt.setBackground(brush)
+        #
+        #     regex = QtCore.QRegExp(expression)
+        #
+        #     pos = 0
+        #
+        #     index = regex.indexIn(search_zone.toPlainText(), pos)
+        #     while index != -1:
+        #         self.move_cursor(cursor, index)
+        #
+        #         cursor.mergeCharFormat(font_fmt)
+        #         pos = index + regex.matchedLength()
+        #         index = regex.indexIn(search_zone.toPlainText(), pos)
+        #
+        #         self.matchs.append((index, pos))
+        pass
+
+    def move_cursor(self, cursor, position, selected=False):
+        cursor.setPosition(position)
+        cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
+        if selected:
+            cursor.select(QtGui.QTextCursor.WordUnderCursor)
 
 class MyApp(QtWidgets.QMainWindow):
     def __init__(self):
@@ -215,14 +282,12 @@ class MyApp(QtWidgets.QMainWindow):
         QtWidgets.qApp.quit()
 
     def find_trigger(self):
-        try:
-            search_box = MySearBox(self)
-            search_box.show()
-        except Exception as e:
-            print(e)
+        search_box = MySearchBox(self)
+        search_box.show()
 
     def replace_trigger(self):
-        pass
+        replace_box = MyReplaceBox(self)
+        replace_box.show()
 
     def selected_trigger(self, q):
         print("{} selected".format(q.text()))
