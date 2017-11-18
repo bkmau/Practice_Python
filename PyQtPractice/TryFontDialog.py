@@ -17,7 +17,7 @@ class MyApp(QtWidgets.QWidget):
         self.set_up()
 
     def set_up(self):
-        self.setFont(QtGui.QFont("Arial", 12))
+        QtWidgets.qApp.setFont(QtGui.QFont("Arial", 12))
         self.setWindowTitle("Hello Word!")
         self.setGeometry(100, 100, 300, 200)
         icons = {
@@ -39,10 +39,14 @@ class MyApp(QtWidgets.QWidget):
         self.setLayout(self.v_box)
 
     def btn_change_font_click(self):
+        font = QtWidgets.qApp.font()
+        print("Default\r\nFont Family: {}, Point Size: {}".format(font.family(), font.pointSize()))
+
         font, valid = QtWidgets.QFontDialog.getFont()
         if valid:
-            self.lbl_1.setFont(font)
-            self.ed_1.setFont(font)
+            print("Change to\r\nFont Family: {}, Point Size: {}".format(
+                font.family(), font.pointSize()))
+            QtWidgets.qApp.setFont(font)
 
 
 if __name__ == "__main__":
