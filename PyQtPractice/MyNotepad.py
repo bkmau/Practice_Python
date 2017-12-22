@@ -1,36 +1,7 @@
 import sys
 import os
 import random
-
-from PyQt5 import QtWidgets, QtGui, QtCore
-
-
-class MyNotepad(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.ed_1 = QtWidgets.QTextEdit()
-        text = """In this text I want to highlight this zzwordyy and only this word.\n""" + \
-               """Any other word shouldn't be highlighted"""
-        self.ed_1.setText(text)
-
-        self.clear_btn = QtWidgets.QPushButton("Clear")
-
-        self.v_box = QtWidgets.QVBoxLayout()
-
-        self.set_up()
-
-    def set_up(self):
-        self.clear_btn.clicked.connect(self.clear_btn_click)
-
-        self.v_box.addWidget(self.ed_1)
-        self.v_box.addWidget(self.clear_btn)
-
-        self.setLayout(self.v_box)
-
-    def clear_btn_click(self):
-        self.ed_1.clear()
-
+from PyQt5 import QtWidgets, QtGui, QtCore, QtPrintSupport
 
 class MySearchBox(QtWidgets.QDialog):
     def __init__(self, parent=None):
@@ -40,8 +11,8 @@ class MySearchBox(QtWidgets.QDialog):
         self.ed_1 = QtWidgets.QLineEdit()
         self.ed_1.setText("word")
 
-        self.find_btn = QtWidgets.QPushButton("Find")
-        self.previous_btn = QtWidgets.QPushButton("Find Previous")
+        self.btn_find = QtWidgets.QPushButton("Find")
+        self.btn_previous = QtWidgets.QPushButton("Find Previous")
 
         self.v_box = QtWidgets.QVBoxLayout()
         self.v_box = QtWidgets.QVBoxLayout()
@@ -56,14 +27,14 @@ class MySearchBox(QtWidgets.QDialog):
         self.h_box_1.addWidget(self.lbl_1)
         self.h_box_1.addWidget(self.ed_1)
 
-        self.find_btn.setObjectName("find_btn")
-        self.find_btn.clicked.connect(self.btn_click)
+        self.btn_find.setObjectName("find_btn")
+        self.btn_find.clicked.connect(self.btn_click)
 
-        self.previous_btn.setObjectName("previous_btn")
-        self.previous_btn.clicked.connect(self.btn_click)
+        self.btn_previous.setObjectName("previous_btn")
+        self.btn_previous.clicked.connect(self.btn_click)
 
-        self.h_box_2.addWidget(self.find_btn)
-        self.h_box_2.addWidget(self.previous_btn)
+        self.h_box_2.addWidget(self.btn_find)
+        self.h_box_2.addWidget(self.btn_previous)
 
         self.v_box.addLayout(self.h_box_1)
         self.v_box.addLayout(self.h_box_2)
@@ -73,6 +44,7 @@ class MySearchBox(QtWidgets.QDialog):
     def btn_click(self):
         if self.sender().objectName() == "find_btn":
             self.highlight_word(True)
+            print(self.matchs)
         elif self.sender().objectName() == "previous_btn":
             print("Go Previous")
 
@@ -120,8 +92,8 @@ class MyReplaceBox(MySearchBox):
         self.ed_2 = QtWidgets.QLineEdit()
         self.ed_2.setText("earth")
 
-        self.replace_btn = QtWidgets.QPushButton("Replace")
-        self.replace_all_btn = QtWidgets.QPushButton("Replace All")
+        self.btn_replace = QtWidgets.QPushButton("Replace")
+        self.btn_replace_all = QtWidgets.QPushButton("Replace All")
 
         self.matchs = []
 
@@ -129,10 +101,10 @@ class MyReplaceBox(MySearchBox):
 
     def set_up(self):
         try:
-            self.h_box.addWidget(self.find_btn)
-            self.h_box.addWidget(self.previous_btn)
-            # self.h_box.addWidget(self.replace_btn)
-            # self.h_box.addWidget(self.replace_all_btn)
+            self.h_box.addWidget(self.btn_find)
+            self.h_box.addWidget(self.btn_previous)
+            # self.h_box.addWidget(self.btn_replace)
+            # self.h_box.addWidget(self.btn_replace_all)
 
             self.v_box.addWidget(self.ed_1)
             self.v_box.addWidget(self.ed_2)
@@ -142,144 +114,197 @@ class MyReplaceBox(MySearchBox):
         except Exception as e:
             print(e)
 
-    def highlight_word(self, highlight):
-        # search_zone = self.parent().edit_area.ed_1
-        # expression = self.ed_1.text()
-        # brush = QtGui.QBrush(QtGui.QColor("yellow")) if highlight else QtGui.QBrush(QtCore.Qt.NoBrush)
-        #
-        # if (search_zone.toPlainText() != "") & (expression != ""):
-        #     cursor = search_zone.textCursor()
-        #
-        #     font_fmt = QtGui.QTextCharFormat()
-        #     font_fmt.setBackground(brush)
-        #
-        #     regex = QtCore.QRegExp(expression)
-        #
-        #     pos = 0
-        #
-        #     index = regex.indexIn(search_zone.toPlainText(), pos)
-        #     while index != -1:
-        #         self.move_cursor(cursor, index)
-        #
-        #         cursor.mergeCharFormat(font_fmt)
-        #         pos = index + regex.matchedLength()
-        #         index = regex.indexIn(search_zone.toPlainText(), pos)
-        #
-        #         self.matchs.append((index, pos))
-        pass
-
-    def move_cursor(self, cursor, position, selected=False):
-        cursor.setPosition(position)
-        cursor.movePosition(QtGui.QTextCursor.EndOfWord, 1)
-        if selected:
-            cursor.select(QtGui.QTextCursor.WordUnderCursor)
-
 class MyApp(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.text = QtWidgets.QTextEdit(self)
+        self.setCentralWidget(self.text)
+
         self.file_name = ""
 
-        self.edit_area = MyNotepad()
-        self.setCentralWidget(self.edit_area)
+        self.status_bar = self.statusBar()
 
-        self.file = self.menuBar().addMenu("File")
-        self.edit = self.menuBar().addMenu("Edit")
+        self.init_action()
 
-        self.new_action = QtWidgets.QAction("&New", self)
-        self.new_action.setIcon(QtGui.QIcon("icon\\page.ico"))
+        self.init_menu_bar()
 
-        self.open_action = QtWidgets.QAction("&Open", self)
-        self.open_action.setIcon(QtGui.QIcon("icon\\folder.ico"))
+        self.init_tool_bar()
 
-        self.save_action = QtWidgets.QAction("&Save", self)
-        self.save_action.setIcon(QtGui.QIcon("icon\\disk.ico"))
-
-        self.save_as_action = QtWidgets.QAction("&Save As", self)
-        self.save_as_action.setIcon(QtGui.QIcon("icon\\file_save_as.ico"))
-
-        self.quit_action = QtWidgets.QAction("&Quit", self)
-        self.quit_action.setIcon(QtGui.QIcon("icon\\exclamation.ico"))
-
-        self.find_action = QtWidgets.QAction("&Find", self)
-        self.find_action.setIcon(QtGui.QIcon("icon\\find.ico"))
-
-        self.replace_action = QtWidgets.QAction("&Replace", self)
+        self.init_format_bar()
 
         self.set_up()
-        self.show()
+
+    def init_action(self):
+        self.act_new = QtWidgets.QAction(QtGui.QIcon("icon\\page.ico"), "&New", self)
+        self.act_new.setStatusTip("Create a new document from scratch.")
+        self.act_new.setShortcut("Ctrl+N")
+        self.act_new.triggered.connect(self.new_trigger)
+
+        self.act_open = QtWidgets.QAction(QtGui.QIcon("icon\\folder.ico"), "&Open file", self)
+        self.act_open.setStatusTip("Open existing document")
+        self.act_open.setShortcut("Ctrl+O")
+        self.act_open.triggered.connect(self.open_trigger)
+
+        self.act_save = QtWidgets.QAction(QtGui.QIcon("icon\\disk.ico"), "&Save", self)
+        self.act_save.setStatusTip("Save document")
+        self.act_save.setShortcut("Ctrl+S")
+        self.act_save.triggered.connect(self.save_trigger)
+
+        self.act_save_as = QtWidgets.QAction(QtGui.QIcon("icon\\file_save_as.ico"), "Save As", self)
+        self.act_save_as.setStatusTip("Save document")
+        self.act_save_as.setShortcut("Ctrl+Shift+S")
+        self.act_save_as.triggered.connect(self.save_as_trigger)
+
+        self.act_print = QtWidgets.QAction(QtGui.QIcon("icon\\printer.ico"), "&Print document", self)
+        self.act_print.setStatusTip("Print document")
+        self.act_print.setShortcut("Ctrl+P")
+        self.act_print.triggered.connect(self.print_trigger)
+
+        self.act_preview = QtWidgets.QAction(QtGui.QIcon("icon\\preview.ico"), "Page view", self)
+        self.act_preview.setStatusTip("Preview page before printing")
+        self.act_preview.setShortcut("Ctrl+Shift+P")
+        self.act_preview.triggered.connect(self.preview_trigger)
+
+        self.act_quit = QtWidgets.QAction(QtGui.QIcon("icon\\exclamation.ico"), "&Quit", self)
+        self.act_preview.setStatusTip("Close Program")
+        self.act_quit.setShortcut("Ctrl+Q")
+        self.act_quit.triggered.connect(QtCore.QCoreApplication.instance().quit)
+
+        self.act_cut = QtWidgets.QAction(QtGui.QIcon("icon\\cut.ico"), "Cut to clipboard", self)
+        self.act_cut.setStatusTip("Delete and copy text to clipboard")
+        self.act_cut.setShortcut("Ctrl+X")
+        self.act_cut.triggered.connect(self.text.cut)
+
+        self.act_copy = QtWidgets.QAction(QtGui.QIcon("icon\\page_copy.ico"), "Copy to clipboard", self)
+        self.act_copy.setStatusTip("Copy text to clipboard")
+        self.act_copy.setShortcut("Ctrl+C")
+        self.act_copy.triggered.connect(self.text.copy)
+
+        self.act_paste = QtWidgets.QAction(QtGui.QIcon("icon\\page_paste.ico"), "Paste from clipboard", self)
+        self.act_paste.setStatusTip("Paste text from clipboard")
+        self.act_paste.setShortcut("Ctrl+V")
+        self.act_paste.triggered.connect(self.text.paste)
+
+        self.act_undo = QtWidgets.QAction(QtGui.QIcon("icon\\undo.ico"), "&Undo", self)
+        self.act_undo.setStatusTip("Undo last action")
+        self.act_undo.setShortcut("Ctrl+Z")
+        self.act_undo.triggered.connect(self.text.undo)
+
+        self.act_redo = QtWidgets.QAction(QtGui.QIcon("icon\\redo.ico"), "&Redo", self)
+        self.act_redo.setStatusTip("Redo last undone thing")
+        self.act_redo.setShortcut("Ctrl+Y")
+        self.act_redo.triggered.connect(self.text.redo)
+
+        self.act_find = QtWidgets.QAction(QtGui.QIcon("icon\\find.ico"), "&Find", self)
+        self.act_find.setStatusTip("Find something in text editor...")
+        self.act_find.setShortcut("Ctrl+F")
+        self.act_find.triggered.connect(self.find_trigger)
+
+        self.act_replace = QtWidgets.QAction("&Replace", self)
+        self.act_preview.setStatusTip("Find and Replace word")
+        self.act_replace.setShortcut("Ctrl+R")
+        self.act_replace.triggered.connect(self.replace_trigger)
+
+    def init_menu_bar(self):
+        self.mnu_file = self.menuBar().addMenu("File")
+
+        self.mnu_file.addAction(self.act_new)
+        self.mnu_file.addAction(self.act_open)
+        self.mnu_file.addAction(self.act_save)
+        self.mnu_file.addAction(self.act_save_as)
+        self.mnu_file.addSeparator()
+        self.mnu_file.addAction(self.act_print)
+        self.mnu_file.addAction(self.act_preview)
+        self.mnu_file.addSeparator()
+        self.mnu_file.addAction(self.act_quit)
+
+        self.mnu_edit = self.menuBar().addMenu("Edit")
+
+        self.mnu_edit.addAction(self.act_cut)
+        self.mnu_edit.addAction(self.act_copy)
+        self.mnu_edit.addAction(self.act_paste)
+        self.mnu_edit.addAction(self.act_find)
+        self.mnu_edit.addAction(self.act_replace)
+
+        self.mnu_view = self.menuBar().addMenu("View")
+
+        self.mnu_file.triggered.connect(self.selected_trigger)
+        self.mnu_edit.triggered.connect(self.selected_trigger)
+        self.mnu_view.triggered.connect(self.selected_trigger)
+
+    def init_tool_bar(self):
+        self.toolBar = self.addToolBar("Options")
+        self.toolBar.setMovable(False)
+        self.toolBar.setFloatable(True)
+
+        self.toolBar.addAction(self.act_new)
+        self.toolBar.addAction(self.act_open)
+        self.toolBar.addAction(self.act_save)
+        self.toolBar.addAction(self.act_save_as)
+        self.toolBar.addSeparator()
+        self.toolBar.addAction(self.act_cut)
+        self.toolBar.addAction(self.act_copy)
+        self.toolBar.addAction(self.act_paste)
+        self.toolBar.addAction(self.act_undo)
+        self.toolBar.addAction(self.act_redo)
+        self.toolBar.addSeparator()
+        self.addToolBarBreak()
+        self.toolBar.addSeparator()
+
+    def init_format_bar(self):
+        pass
 
     def set_up(self):
         self.setFont(QtGui.QFont("Arial", 12))
         self.setWindowTitle("Hello Word!")
 
-        if random.randint(0, 9) % 2 == 0:
-            self.setWindowIcon(QtGui.QIcon("icon\\chameleon.ico"))
-        else:
-            self.setWindowIcon(QtGui.QIcon("icon\\aol_mail.ico"))
-        self.setGeometry(100, 100, 800, 600)
-
-        self.new_action.setShortcut("Ctrl+N")
-        self.new_action.triggered.connect(self.new_trigger)
-
-        self.open_action.setShortcut("Ctrl+O")
-        self.open_action.triggered.connect(self.open_trigger)
-
-        self.save_action.setShortcut("Ctrl+S")
-        self.save_action.triggered.connect(self.save_trigger)
-
-        self.save_as_action.setShortcut("Ctrl+Shift+S")
-        self.save_as_action.triggered.connect(self.save_as_trigger)
-
-        self.quit_action.setShortcut("Ctrl+Q")
-        self.quit_action.triggered.connect(self.quit_trigger)
-
-        self.file.addAction(self.new_action)
-        self.file.addAction(self.open_action)
-        self.file.addAction(self.save_action)
-        self.file.addAction(self.save_as_action)
-        self.file.addAction(self.quit_action)
-        self.file.triggered.connect(self.selected_trigger)
-
-        self.find_action.setShortcut("Ctrl+F")
-        self.find_action.triggered.connect(self.find_trigger)
-
-        self.replace_action.setShortcut("Ctrl+R")
-        self.replace_action.triggered.connect(self.replace_trigger)
-
-        self.edit.addAction(self.find_action)
-        self.edit.addAction(self.replace_action)
-        self.edit.triggered.connect(self.selected_trigger)
+        icons = {
+            0: QtGui.QIcon("icon\\chameleon.ico"),
+            1: QtGui.QIcon("icon\\aol_mail.ico"),
+            2: QtGui.QIcon("icon\\emotion_darth_wader.ico")
+        }
+        self.setWindowIcon(icons.get(random.randint(0, 9) % 3))
 
     def new_trigger(self):
-        self.edit_area.ed_1.clear()
-        self.file_name = "" if self.file_name else ""
+        self.text.clear()
+        self.file_name = ""
 
     def open_trigger(self):
         name = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Open File", os.getenv("HOME"), "Plain text(*.txt);;XML(*.xml);;All(*)")
+            self, "Open File", os.getenv("HOME"), "Plain text(*.txt)")
+
         if name[0]:
             self.file_name = name[0]
             with open(name[0], "r") as f:
-                self.edit_area.ed_1.setText(f.read())
+                self.text.setText(f.read())
 
     def save_trigger(self):
         if self.file_name:
             with open(self.file_name, "w", encoding="UTF-8") as f:
-                f.write(self.edit_area.ed_1.toPlainText())
+                f.write(self.text.toPlainText())
         else:
-            self.save_as_action.trigger()
+            self.act_save_as.trigger()
 
     def save_as_trigger(self):
         name = QtWidgets.QFileDialog.getSaveFileName(
-            self, "Save File", os.getenv("HOME"), "Plain text(*.txt);;XML(*.xml);;All(*)")
+            self, "Save File", os.getenv("HOME"), "Plain text(*.txt)")
         if name[0]:
             self.file_name = name[0]
             with open(self.file_name, "w", encoding="UTF-8") as f:
                 f.write(self.edit_area.ed_1.toPlainText())
 
-    def quit_trigger(self):
-        QtWidgets.qApp.quit()
+    def print_trigger(self):
+        dialog = QtPrintSupport.QPrintDialog()
+
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            self.text.document().print_(dialog.printer())
+
+    def preview_trigger(self):
+        preview = QtPrintSupport.QPrintPreviewDialog()
+        preview.paintRequested.connect(lambda p: self.text.print_(p))
+
+        preview.exec_()
 
     def find_trigger(self):
         search_box = MySearchBox(self)
@@ -292,7 +317,16 @@ class MyApp(QtWidgets.QMainWindow):
     def selected_trigger(self, q):
         print("{} selected".format(q.text()))
 
+    def showEvent(self, event):
+        self.resize(800, 600)
+        center = QtWidgets.QApplication.desktop().availableGeometry()
+        x = (center.width() - self.width()) / 2
+        y = (center.height() - self.height()) / 2
+        self.move(x, y)
 
-app = QtWidgets.QApplication(sys.argv)
-window = MyApp()
-sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = MyApp()
+    window.show()
+    sys.exit(app.exec_())
