@@ -3,6 +3,13 @@ import os
 import random
 from PyQt5 import QtWidgets, QtGui, QtCore, QtPrintSupport
 
+'''
+ref:
+  ICONs come from http://www.fatcow.com/free-icons
+  Building a text editor with PyQt: Part 1
+    http://www.binpress.com/tutorial/building-a-text-editor-with-pyqt-part-one/143
+'''
+
 class MySearchBox(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -206,6 +213,30 @@ class MyApp(QtWidgets.QMainWindow):
         self.act_replace.setShortcut("Ctrl+R")
         self.act_replace.triggered.connect(self.replace_trigger)
 
+        self.act_font_color = QtWidgets.QAction(QtGui.QIcon("icon\\font_colors.ico"), "Change font color", self)
+        self.act_font_color.triggered.connect(self.font_color_trigger)
+
+        self.act_text_highlight = QtWidgets.QAction(QtGui.QIcon("icon\\highlighter_text.ico"), "Change background color", self)
+        self.act_text_highlight.triggered.connect(self.text_highlight_trigger)
+
+        self.act_bold = QtWidgets.QAction(QtGui.QIcon("icon\\text_bold.ico"), "Bold", self)
+        self.act_bold.triggered.connect(self.bold_trigger)
+
+        self.act_italic = QtWidgets.QAction(QtGui.QIcon("icon\\text_italic.ico"), "Italic", self)
+        self.act_italic.triggered.connect(self.italic_trigger)
+
+        self.act_underline = QtWidgets.QAction(QtGui.QIcon("icon\\text_underline.ico"), "Underline", self)
+        self.act_underline.triggered.connect(self.underline_trigger)
+
+        self.act_strike = QtWidgets.QAction(QtGui.QIcon("icon\\text_strikethroungh.ico"), "Strike-out", self)
+        self.act_strike.triggered.connect(self.strike_trigger)
+
+        self.act_superscript = QtWidgets.QAction(QtGui.QIcon("icon\\font_superscript.ico"), "Superscript", self)
+        self.act_superscript.triggered.connect(self.act_superscript_trigger)
+
+        self.act_subscript = QtWidgets.QAction(QtGui.QIcon("icon\\font_subscript.ico"), "Subscript", self)
+        self.act_subscript.triggered.connect(self.subscript_trigger)
+
     def init_menu_bar(self):
         self.mnu_file = self.menuBar().addMenu("File")
 
@@ -234,29 +265,59 @@ class MyApp(QtWidgets.QMainWindow):
         self.mnu_view.triggered.connect(self.selected_trigger)
 
     def init_tool_bar(self):
-        self.toolBar = self.addToolBar("Options")
-        self.toolBar.setMovable(False)
-        self.toolBar.setFloatable(True)
+        self.tool_bar = self.addToolBar("Options")
+        self.tool_bar.setMovable(False)
+        self.tool_bar.setFloatable(True)
 
-        self.toolBar.addAction(self.act_new)
-        self.toolBar.addAction(self.act_open)
-        self.toolBar.addAction(self.act_save)
-        self.toolBar.addAction(self.act_save_as)
-        self.toolBar.addSeparator()
-        self.toolBar.addAction(self.act_cut)
-        self.toolBar.addAction(self.act_copy)
-        self.toolBar.addAction(self.act_paste)
-        self.toolBar.addAction(self.act_undo)
-        self.toolBar.addAction(self.act_redo)
-        self.toolBar.addSeparator()
+        self.tool_bar.addAction(self.act_new)
+        self.tool_bar.addAction(self.act_open)
+        self.tool_bar.addAction(self.act_save)
+        self.tool_bar.addAction(self.act_save_as)
+        self.tool_bar.addSeparator()
+        self.tool_bar.addAction(self.act_cut)
+        self.tool_bar.addAction(self.act_copy)
+        self.tool_bar.addAction(self.act_paste)
+        self.tool_bar.addAction(self.act_undo)
+        self.tool_bar.addAction(self.act_redo)
+        self.tool_bar.addSeparator()
         self.addToolBarBreak()
-        self.toolBar.addSeparator()
 
     def init_format_bar(self):
-        pass
+        self.format_bar = self.addToolBar("Format")
+        self.format_bar.setMovable(False)
+        self.format_bar.setFloatable(True)
+
+        self.font_box = QtWidgets.QFontComboBox(self)
+        self.font_box.currentFontChanged.connect(self.font_change)
+
+        self.font_size_box = QtWidgets.QComboBox(self)
+        self.font_size_box.addItems([
+            "6", "7", "8", "9", "10", "11", "12", "13", "14", "15",
+            "16", "18", "20", "22", "24", "26", "28", "32", "36", "40",
+            "44", "48", "54", "60", "66", "72", "80", "88", "96"
+        ])
+        self.font_size_box.setEditable(True)
+        self.font_size_box.activated[str].connect(self.font_size_active)
+        self.font_size_box.setMinimumContentsLength(3)
+        self.font_size_box.setValidator(QtGui.QIntValidator(1, 120))
+
+        self.format_bar.addWidget(self.font_box)
+        self.format_bar.addWidget(self.font_size_box)
+
+        self.format_bar.addSeparator()
+        self.format_bar.addAction(self.act_font_color)
+        self.format_bar.addAction(self.act_text_highlight)
+        self.format_bar.addAction(self.act_bold)
+        self.format_bar.addAction(self.act_italic)
+        self.format_bar.addAction(self.act_underline)
+        self.format_bar.addAction(self.act_strike)
+        self.format_bar.addAction(self.act_superscript)
+        self.format_bar.addAction(self.act_subscript)
+
+        self.format_bar.addSeparator()
 
     def set_up(self):
-        self.setFont(QtGui.QFont("Arial", 12))
+        QtWidgets.qApp.setFont(QtGui.QFont("Arial", 12))
         self.setWindowTitle("Hello Word!")
 
         icons = {
@@ -265,6 +326,8 @@ class MyApp(QtWidgets.QMainWindow):
             2: QtGui.QIcon("icon\\emotion_darth_wader.ico")
         }
         self.setWindowIcon(icons.get(random.randint(0, 9) % 3))
+
+        self.text.cursorPositionChanged.connect(self.get_current_line_num)
 
     def new_trigger(self):
         self.text.clear()
@@ -317,7 +380,50 @@ class MyApp(QtWidgets.QMainWindow):
     def selected_trigger(self, q):
         print("{} selected".format(q.text()))
 
+    def get_current_line_num(self):
+        cursor = self.text.textCursor()
+
+        self.status_bar.showMessage("Line: {} Column: {}".format(
+            (cursor.blockNumber() + 1), cursor.columnNumber()
+        ))
+
+    def font_change(self, font):
+        self.text.setCurrentFont(font)
+
+    def font_size_active(self, size):
+        self.text.setFontPointSize(int(size))
+
+    def font_color_trigger(self):
+        color = QtWidgets.QColorDialog.getColor()
+        self.text.setTextColor(color)
+
+    def text_highlight_trigger(self):
+        color = QtWidgets.QColorDialog.getColor()
+        self.text.setTextBackgroundColor(color)
+
+    def bold_trigger(self):
+        pass
+
+    def italic_trigger(self):
+        pass
+
+    def underline_trigger(self):
+        pass
+
+    def strike_trigger(self):
+        pass
+
+    def act_superscript_trigger(self):
+        pass
+
+    def subscript_trigger(self):
+        pass
+
     def showEvent(self, event):
+        font = QtWidgets.qApp.font()
+        self.font_box.setCurrentFont(font)
+        self.font_size_box.setCurrentIndex(self.font_size_box.findText(str(font.pointSize())))
+
         self.resize(800, 600)
         center = QtWidgets.QApplication.desktop().availableGeometry()
         x = (center.width() - self.width()) / 2
